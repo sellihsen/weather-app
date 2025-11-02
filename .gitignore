@@ -1,0 +1,89 @@
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Visual Studio Code
+.vscode/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+*.nuspec
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# DotCover
+*.dotCover
+
+# Coverlet coverage files
+coverage*.json
+coverage*.xml
+coverage*.info
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Backup files
+*~ 
+*.bak
+*.tmp
+*.swp
+
+# Others
+*.cache
+*.log
+*.vspscc
+*.vssscc
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# SQL Server files
+*.mdf
+*.ldf
+*.ndf
+
+# Entity Framework files
+*.edmx.diagram
+
+# Azure Web Apps publish files
+*.Publish.xml
+
+# IIS Express
+/.vs/IISExpress/
+
+# Local History for JetBrains IDEs
+.localhistory/
+
+# User secrets
+secrets.json
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config for macOS
+.DS_Store
