@@ -1,0 +1,79 @@
+name: Build and Deploy to AKS
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  IMAGE_NAME: weather-app
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore WeatherApp/WeatherAPP.csproj
+
+      - name: Build application
+        run: dotnet build WeatherApp/WeatherAPP.csproj --configuration Release --no-restore
+
+      - name: Run tests
+        run: dotnet test WeatherApp/WeatherAPP.csproj --no-build --verbosity normal || true
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Azure CLI
+        uses: azure/cli@v2
+        with:
+          inlineScript: echo "Azure CLI setup complete"
+
+      - name: Build and push Docker image to ACR
+        run: |
+          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          az acr build \
+            --registry ${{ secrets.ACR_NAME }} \
+            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --file WeatherApp/Dockerfile \
+            .
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Deploy to AKS
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "Checking if AKS cluster exists..."
+          if ! az aks show --resource-group "${{ secrets.RESOURCE_GROUP }}" --name "${{ secrets.CLUSTER_NAME }}" --output table; then
+            echo "ERROR: AKS cluster '${{ secrets.CLUSTER_NAME }}' not found in resource group '${{ secrets.RESOURCE_GROUP }}'"
+            exit 1
+          fi
+
+          echo "Getting AKS credentials..."
+          az aks get-credentials \
+            --resource-group ${{ secrets.RESOURCE_GROUP }} \
+            --name ${{ secrets.CLUSTER_NAME }} \
+            --overwrite-existing
+
+          echo "Testing kubectl connection..."
+          kubectl cluster-info
+
+          echo "Updating deployment with image: ${{ env.IMAGE_TAG }}"
+          kubectl set image deployment/weather-app \
+            weather-app=${{ env.IMAGE_TAG }}
+
+          echo "Waiting for rollout to complete..."
+          kubectl rollout status deployment/weather-app --timeout=600s
+
+          echo "Deployment status:"
+          kubectl get pods -l app=weather-app
+          kubectl get service weather-app-service
