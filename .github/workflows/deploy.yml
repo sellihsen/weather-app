@@ -33,6 +33,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: 'service_principal'
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
