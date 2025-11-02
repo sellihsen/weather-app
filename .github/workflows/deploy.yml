@@ -47,7 +47,7 @@ jobs:
             --registry ${{ secrets.ACR_NAME }} \
             --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             --file WeatherApp/Dockerfile \
-            .
+            WeatherApp
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: Deploy to AKS
