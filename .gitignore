@@ -1,89 +1,89 @@
 # Build results
-[Dd]ebug/
-[Dd]ebugPublic/
-[Rr]elease/
-[Rr]eleases/
-x64/
-x86/
-[Aa][Rr][Mm]/
-[Aa][Rr][Mm]64/
-bld/
-[Bb]in/
-[Oo]bj/
+WeatherApp/[Dd]ebug/
+WeatherApp/[Dd]ebugPublic/
+WeatherApp/[Rr]elease/
+WeatherApp/[Rr]eleases/
+WeatherApp/x64/
+WeatherApp/x86/
+WeatherApp/[Aa][Rr][Mm]/
+WeatherApp/[Aa][Rr][Mm]64/
+WeatherApp/bld/
+WeatherApp/[Bb]in/
+WeatherApp/[Oo]bj/
 
 # Visual Studio
-.vs/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+WeatherApp/.vs/
+WeatherApp/*.user
+WeatherApp/*.suo
+WeatherApp/*.userosscache
+WeatherApp/*.sln.docstates
 
 # Rider
-.idea/
+WeatherApp/.idea/
 
 # Visual Studio Code
-.vscode/
+WeatherApp/.vscode/
 
 # NuGet packages
-*.nupkg
-*.snupkg
-*.nuspec
-.nuget/
-packages/
-project.lock.json
-project.fragment.lock.json
+WeatherApp/*.nupkg
+WeatherApp/*.snupkg
+WeatherApp/*.nuspec
+WeatherApp/.nuget/
+WeatherApp/packages/
+WeatherApp/project.lock.json
+WeatherApp/project.fragment.lock.json
 
 # DotCover
-*.dotCover
+WeatherApp/*.dotCover
 
 # Coverlet coverage files
-coverage*.json
-coverage*.xml
-coverage*.info
+WeatherApp/coverage*.json
+WeatherApp/coverage*.xml
+WeatherApp/coverage*.info
 
 # Resharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
+WeatherApp/_ReSharper*/
+WeatherApp/*.[Rr]e[Ss]harper
+WeatherApp/*.DotSettings.user
 
 # Backup files
-*~ 
-*.bak
-*.tmp
-*.swp
+WeatherApp/*~ 
+WeatherApp/*.bak
+WeatherApp/*.tmp
+WeatherApp/*.swp
 
 # Others
-*.cache
-*.log
-*.vspscc
-*.vssscc
+WeatherApp/*.cache
+WeatherApp/*.log
+WeatherApp/*.vspscc
+WeatherApp/*.vssscc
 
 # ASP.NET Scaffolding
-ScaffoldingReadMe.txt
+WeatherApp/ScaffoldingReadMe.txt
 
 # SQL Server files
-*.mdf
-*.ldf
-*.ndf
+WeatherApp/*.mdf
+WeatherApp/*.ldf
+WeatherApp/*.ndf
 
 # Entity Framework files
-*.edmx.diagram
+WeatherApp/*.edmx.diagram
 
 # Azure Web Apps publish files
-*.Publish.xml
+WeatherApp/*.Publish.xml
 
 # IIS Express
-/.vs/IISExpress/
+WeatherApp//.vs/IISExpress/
 
 # Local History for JetBrains IDEs
-.localhistory/
+WeatherApp/.localhistory/
 
 # User secrets
-secrets.json
+WeatherApp/secrets.json
 
 # Windows image file caches
-Thumbs.db
-ehthumbs.db
+WeatherApp/Thumbs.db
+WeatherApp/ehthumbs.db
 
 # Folder config for macOS
-.DS_Store
+WeatherApp/.DS_Store

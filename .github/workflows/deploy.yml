@@ -1,16 +1,21 @@
 name: Build and Deploy to AKS
+
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
 
 env:
   IMAGE_NAME: weather-app
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.set-image-tag.outputs.image-tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,6 +34,44 @@ jobs:
       - name: Run tests
         run: dotnet test WeatherApp/WeatherApp.csproj --no-build --verbosity normal || true
 
+      - name: Build Docker image locally
+        run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} -f WeatherApp/Dockerfile WeatherApp
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget apt-transport-https gnupg lsb-release
+          wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Scan Docker image with Trivy
+        run: |
+          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: 'service_principal'
+
+      - name: Build and push Docker image to ACR
+        id: set-image-tag
+        run: |
+          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          az acr build \
+            --registry ${{ secrets.ACR_NAME }} \
+            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --file WeatherApp/Dockerfile \
+            WeatherApp
+          echo "::set-output name=image-tag::$IMAGE_TAG"
+
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -40,41 +83,23 @@ jobs:
         with:
           inlineScript: echo "Azure CLI setup complete"
 
-      - name: Build and push Docker image to ACR
+      - name: Get AKS credentials
         run: |
-          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          az acr build \
-            --registry ${{ secrets.ACR_NAME }} \
-            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --file WeatherApp/Dockerfile \
-            WeatherApp
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
-
-      - name: Deploy to AKS
-        if: github.ref == 'refs/heads/main'
-        run: |
-          echo "Checking if AKS cluster exists..."
-          if ! az aks show --resource-group "${{ secrets.RESOURCE_GROUP }}" --name "${{ secrets.CLUSTER_NAME }}" --output table; then
-            echo "ERROR: AKS cluster '${{ secrets.CLUSTER_NAME }}' not found in resource group '${{ secrets.RESOURCE_GROUP }}'"
-            exit 1
-          fi
-
-          echo "Getting AKS credentials..."
           az aks get-credentials \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name ${{ secrets.CLUSTER_NAME }} \
             --overwrite-existing
 
-          echo "Testing kubectl connection..."
-          kubectl cluster-info
+      - name: Test kubectl connection
+        run: kubectl cluster-info
 
-          echo "Updating deployment with image: ${{ env.IMAGE_TAG }}"
+      - name: Update deployment image and rollout
+        run: |
           kubectl set image deployment/weather-app \
-            weather-app=${{ env.IMAGE_TAG }}
-
-          echo "Waiting for rollout to complete..."
+            weather-app=${{ needs.build.outputs.image-tag }}
           kubectl rollout status deployment/weather-app --timeout=600s
-
-          echo "Deployment status:"
+          
+      - name: Check deployment status
+        run: |
           kubectl get pods -l app=weather-app
           kubectl get service weather-app-service
