@@ -70,7 +70,7 @@ jobs:
 
       - name: Validate image tag output
         run: |
-          echo "Built image tag: ${{ steps.set-image-tag.outputs.image-tag }}"
+          echo "Built image tag output: ${{ steps.set-image-tag.outputs.image-tag }}"
 
   deploy:
     needs: build
