@@ -30,7 +30,8 @@ app.MapGet("/", () => new
     Message = "Welcome to the Weather App!",
     Version = "1.0.0",
     Environment = app.Environment.EnvironmentName,
-    Timestamp = DateTime.UtcNow
+    Timestamp = DateTime.UtcNow,
+    DeployedBy = "GitHub Actions"
 })
 .WithName("GetWelcome")
 .WithTags("General");
