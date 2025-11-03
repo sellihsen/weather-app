@@ -69,6 +69,10 @@ jobs:
             WeatherApp
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
+      - name: Validate image tag output
+        run: |
+          echo "Built image tag: ${{ steps.set-image-tag.outputs.image-tag }}"
+  
   deploy:
     needs: build
     runs-on: ubuntu-latest
