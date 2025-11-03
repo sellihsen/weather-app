@@ -16,7 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.set-image-tag.outputs.image-tag }}
-      test-output: ${{ steps.set-test-output.outputs.test-output }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -70,18 +69,11 @@ jobs:
       - name: Set image tag output
         id: set-image-tag
         run: |
-          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          IMAGE_TAG=${{ github.sha }}
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Validate image tag output
         run: echo "Built image tag output ${{ steps.set-image-tag.outputs.image-tag }}"
-      - name: Test GITHUB_OUTPUT support
-        id: set-test-output
-        run: |
-          echo "test-output=hello" >> $GITHUB_OUTPUT
-      - name: Print output
-        run: echo "Output is ${{ steps.set-test-output.outputs.test-output }}"
-
 
   deploy:
     needs: build
@@ -95,7 +87,9 @@ jobs:
           auth-type: 'service_principal'
 
       - name: Debug image tag in deploy
-        run: echo "Image tag ${{ needs.build.outputs.image-tag }}"
+        run: |
+          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image-tag }}
+          echo "Image tag $IMAGE_TAG"
         
       - name: Setup Azure CLI
         uses: azure/cli@v2
@@ -114,8 +108,9 @@ jobs:
 
       - name: Update deployment image and rollout
         run: |
+          IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image-tag }}
           kubectl set image deployment/weather-app \
-            weather-app=${{ needs.build.outputs.image-tag }}
+            weather-app=$IMAGE_TAG
           kubectl rollout status deployment/weather-app --timeout=600s
 
       - name: Check deployment status
