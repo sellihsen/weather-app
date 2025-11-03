@@ -81,7 +81,8 @@ jobs:
           auth-type: 'service_principal'
 
       - name: Debug image tag
-        run: echo "Image tag to deploy: ${{ needs.build.outputs.image-tag }}"
+        run: |
+          echo "Image tag to deploy: ${{ needs.build.outputs.image-tag }}"
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
