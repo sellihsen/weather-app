@@ -71,7 +71,7 @@ jobs:
 
       - name: Validate image tag output
         run: |
-          echo "Built image tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
+          echo "Output image-tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
   
   deploy:
     needs: build
@@ -84,7 +84,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           auth-type: 'service_principal'
 
-      - name: Debug image tag
+      - name: Debug image tag in deploy
         run: |
           echo "Image tag: ${{ needs.build.outputs['image-tag'] }}"
 
