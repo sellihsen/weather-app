@@ -34,6 +34,9 @@ jobs:
       - name: Run tests
         run: dotnet test WeatherApp/WeatherApp.csproj --no-build --verbosity normal || true
 
+      - name: Pull latest base image
+        run: docker pull mcr.microsoft.com/dotnet/aspnet:9.0
+
       - name: Build Docker image locally
         run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} -f WeatherApp/Dockerfile WeatherApp
 
@@ -65,7 +68,6 @@ jobs:
             --file WeatherApp/Dockerfile \
             WeatherApp
           echo "::set-output name=image-tag::$IMAGE_TAG"
-
 
   deploy:
     needs: build
