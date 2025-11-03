@@ -1,1 +1,31 @@
 
+name: Test Output
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    outputs:
+      test-output: ${{ steps.set-test-output.outputs.test-output }}
+    steps:
+      - name: Test GITHUB_OUTPUT support
+        id: set-test-output
+        run: |
+          echo "test-output=hello" >> $GITHUB_OUTPUT
+      - name: Print output
+        run: echo "Output is ${{ steps.set-test-output.outputs.test-output }}"
+
+
+  job2:
+    needs: job1
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Output
+        run: echo "Output test ${{ needs.job1.outputs.test-output }}"
