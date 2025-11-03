@@ -50,7 +50,7 @@ jobs:
 
       - name: Scan Docker image with Trivy
         run: |
-          trivy image --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          trivy image --ignorefile .trivyignore --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Azure Login
         uses: azure/login@v1
