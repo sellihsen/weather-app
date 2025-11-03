@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image-tag: ${{ steps.set-image-tag.outputs['image-tag'] }}
+      image-tag: ${{ steps.set-image-tag.outputs.image-tag }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,8 +49,7 @@ jobs:
           sudo apt-get install -y trivy
 
       - name: Scan Docker image with Trivy
-        run: |
-          trivy image --ignorefile .trivyignore --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_NAME }}:${{ github.sha }}
+        run: trivy image --ignorefile .trivyignore --exit-code 1 --severity HIGH,CRITICAL ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
       - name: Azure Login
         uses: azure/login@v1
@@ -70,9 +69,8 @@ jobs:
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Validate image tag output
-        run: |
-          echo "Output image-tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
-  
+        run: echo "Built image tag: ${{ steps.set-image-tag.outputs.image-tag }}"
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -85,8 +83,7 @@ jobs:
           auth-type: 'service_principal'
 
       - name: Debug image tag in deploy
-        run: |
-          echo "Image tag: ${{ needs.build.outputs['image-tag'] }}"
+        run: echo "Image tag: ${{ needs.build.outputs.image-tag }}"
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
@@ -106,7 +103,7 @@ jobs:
       - name: Update deployment image and rollout
         run: |
           kubectl set image deployment/weather-app \
-            weather-app=${{ needs.build.outputs['image-tag'] }}
+            weather-app=${{ needs.build.outputs.image-tag }}
           kubectl rollout status deployment/weather-app --timeout=600s
 
       - name: Check deployment status
