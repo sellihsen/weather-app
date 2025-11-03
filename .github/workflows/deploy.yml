@@ -71,7 +71,7 @@ jobs:
 
       - name: Validate image tag output
         run: |
-          echo "Built image tag: ${{ steps.set-image-tag.outputs.image-tag }}"
+          echo "Built image tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
   
   deploy:
     needs: build
@@ -86,7 +86,7 @@ jobs:
 
       - name: Debug image tag
         run: |
-          echo "Image tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
+          echo "Image tag: ${{ needs.build.outputs['image-tag'] }}"
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
