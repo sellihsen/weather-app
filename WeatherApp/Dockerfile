@@ -32,7 +32,16 @@ RUN dotnet publish "WeatherApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 
 # Final stage
 FROM base AS final
-RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Update and upgrade packages first
+RUN apt-get update && apt-get upgrade -y
+
+# Remove vulnerable/unneeded packages
+RUN apt-get remove --purge -y libpam-modules libpam-modules-bin libpam-runtime libpam0g zlib1g
+
+# Clean up
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "WeatherApp.dll"]
