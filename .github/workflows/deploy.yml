@@ -64,7 +64,7 @@ jobs:
           IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
           az acr build \
             --registry ${{ secrets.ACR_NAME }} \
-            --image ${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --image $IMAGE_TAG \
             --file WeatherApp/Dockerfile \
             WeatherApp
           echo "::set-output name=image-tag::$IMAGE_TAG"
@@ -100,7 +100,7 @@ jobs:
           kubectl set image deployment/weather-app \
             weather-app=${{ needs.build.outputs.image-tag }}
           kubectl rollout status deployment/weather-app --timeout=600s
-          
+
       - name: Check deployment status
         run: |
           kubectl get pods -l app=weather-app
