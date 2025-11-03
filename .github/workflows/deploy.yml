@@ -69,8 +69,13 @@ jobs:
           echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Validate image tag output
+        run: echo "Built image tag output ${{ steps.set-image-tag.outputs.image-tag }}"
+      - name: Test GITHUB_OUTPUT support
         run: |
-          echo "Built image tag output: ${{ steps.set-image-tag.outputs.image-tag }}"
+          echo "test-output=hello" >> $GITHUB_OUTPUT
+      - name: Print output
+        run: echo "Output is ${{ steps.test-output.outputs.test-output }}"
+        id: test-output
 
   deploy:
     needs: build
@@ -84,9 +89,8 @@ jobs:
           auth-type: 'service_principal'
 
       - name: Debug image tag in deploy
-        run: |
-          echo "Image tag: ${{ needs.build.outputs.image-tag }}"
-
+        run: echo "Image tag ${{ needs.build.outputs.image-tag }}"
+        
       - name: Setup Azure CLI
         uses: azure/cli@v2
         with:
