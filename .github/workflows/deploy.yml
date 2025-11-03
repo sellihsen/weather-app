@@ -71,11 +71,12 @@ jobs:
       - name: Validate image tag output
         run: echo "Built image tag output ${{ steps.set-image-tag.outputs.image-tag }}"
       - name: Test GITHUB_OUTPUT support
+        id: set-test-output
         run: |
           echo "test-output=hello" >> $GITHUB_OUTPUT
       - name: Print output
-        run: echo "Output is ${{ steps.test-output.outputs.test-output }}"
-        id: test-output
+        run: echo "Output is ${{ steps.set-test-output.outputs.test-output }}"
+
 
   deploy:
     needs: build
