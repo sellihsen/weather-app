@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      image-tag: ${{ steps.set-image-tag.outputs.image-tag }}
+      image-tag: ${{ steps.set-image-tag.outputs['image-tag'] }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -86,7 +86,7 @@ jobs:
 
       - name: Debug image tag
         run: |
-          echo "Image tag to deploy: ${{ needs.build.outputs.image-tag }}"
+          echo "Image tag: ${{ steps.set-image-tag.outputs['image-tag'] }}"
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
@@ -106,7 +106,7 @@ jobs:
       - name: Update deployment image and rollout
         run: |
           kubectl set image deployment/weather-app \
-            weather-app=${{ needs.build.outputs.image-tag }}
+            weather-app=${{ needs.build.outputs['image-tag'] }}
           kubectl rollout status deployment/weather-app --timeout=600s
 
       - name: Check deployment status
