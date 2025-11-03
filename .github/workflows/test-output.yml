@@ -18,7 +18,7 @@ jobs:
       - name: Test GITHUB_OUTPUT support
         id: set-test-output
         run: |
-          echo "test-output=hello" >> $GITHUB_OUTPUT
+          echo "test-output=toto" >> $GITHUB_OUTPUT
       - name: Print output
         run: echo "Output is ${{ steps.set-test-output.outputs.test-output }}"
 
