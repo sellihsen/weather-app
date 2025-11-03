@@ -67,7 +67,7 @@ jobs:
             --image $IMAGE_TAG \
             --file WeatherApp/Dockerfile \
             WeatherApp
-          echo "::set-output name=image-tag::$IMAGE_TAG"
+          echo "image-tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
   deploy:
     needs: build
@@ -79,6 +79,9 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           auth-type: 'service_principal'
+
+      - name: Debug image tag
+        run: echo "Image tag to deploy: ${{ needs.build.outputs.image-tag }}"
 
       - name: Setup Azure CLI
         uses: azure/cli@v2
