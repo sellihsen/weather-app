@@ -29,8 +29,9 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   sku_tier = "Free"
 
-  aad_profile {
-    managed = true
+  azure_active_directory {
+    managed                = true
+    admin_group_object_ids = []
   }
 
   # Attach ACR
