@@ -38,8 +38,21 @@ jobs:
         run: terraform providers
         working-directory: ./infra
       - name: Terraform plan
-        run: terraform plan -out main.tfplan
+        run: terraform plan -out=plan.tfplan
         working-directory: ./infra
+
+      - name: Check if Terraform plan has changes
+        id: plan-check
+        run: |
+          terraform show -no-color plan.tfplan | tee plan.txt
+          if grep -q "No changes. Infrastructure is up-to-date." plan.txt; then
+            echo "no-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "no-changes=false" >> $GITHUB_OUTPUT
+          fi
+        working-directory: ./infra
+
       - name: Terraform apply
-        run: terraform apply -auto-approve "main.tfplan"
+        if: ${{ steps.plan-check.outputs.no-changes == 'false' }}
+        run: terraform apply -auto-approve plan.tfplan
         working-directory: ./infra
