@@ -38,8 +38,8 @@ jobs:
         run: terraform providers
         working-directory: ./infra
       - name: Terraform plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -out main.tfplan
         working-directory: ./infra
       - name: Terraform apply
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve "main.tfplan"
         working-directory: ./infra
