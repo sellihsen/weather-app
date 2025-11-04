@@ -10,7 +10,8 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
     environment: production
-
+    outputs:
+      no-changes: ${{ steps.plan-check.outputs.no-changes }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -26,17 +27,21 @@ jobs:
         
       - name: Clean terraform cache
         run: rm -rf ./infra/.terraform ./infra/.terraform.lock.hcl
+        
       - name: Terraform init
         run: terraform init -upgrade
         working-directory: ./infra
+
       - name: Show Terraform version and providers
         run: |
           terraform version
           terraform providers
         working-directory: ./infra
+
       - name: Terraform providers
         run: terraform providers
         working-directory: ./infra
+
       - name: Terraform plan
         run: terraform plan -out=plan.tfplan
         working-directory: ./infra
@@ -51,6 +56,9 @@ jobs:
             echo "no-changes=false" >> $GITHUB_OUTPUT
           fi
         working-directory: ./infra
+
+      - name: Validate no-changes output
+        run: echo "Terraform plan changes ${{ steps.plan-check.outputs.no-changes }}"
 
       - name: Terraform apply
         if: ${{ steps.plan-check.outputs.no-changes == 'false' }}
