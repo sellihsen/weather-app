@@ -37,10 +37,12 @@ jobs:
           distribution: 'temurin'
 
       - name: SonarCloud Scan - Prepare Analysis
-        uses: SonarSource/sonarcloud-github-action@v1
+        uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectKey: ${{ secrets.SONAR_WEATHER_PRJ_KEY }}
-          organization: ${{ secrets.SONAR_ORGANIZATION_KEY }}
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_WEATHER_PRJ_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION_KEY }}
+            -Dsonar.sources=.
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       
