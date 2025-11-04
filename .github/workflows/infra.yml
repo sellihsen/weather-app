@@ -55,9 +55,10 @@ jobs:
         run: terraform apply -auto-approve plan.tfplan
         working-directory: ./infra
 
-  skip-notify:
-      if: github.event.inputs.run_infra == 'no' && github.event_name == 'workflow_dispatch'
-      runs-on: ubuntu-latest
-      steps:
-        - name: Exit cleanly without running terraform
-          run: echo "Terraform apply skipped by user input - exiting gracefully."
+  skipped:
+    if: github.event.inputs.run_infra == 'no'
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Skipping terraform deploy per user request..."
+    outputs:
+      run-status: 'skipped'
