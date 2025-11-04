@@ -1,12 +1,10 @@
 name: Build and Deploy to AKS
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  workflow_run:
+    workflows: ["Terraform Infrastructure"]
+    types:
+      - completed
 
 env:
   IMAGE_NAME: weather-app
@@ -14,6 +12,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: production
     outputs:
       image-tag: ${{ steps.set-image-tag.outputs.image-tag }}
     steps:
@@ -28,11 +27,27 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore WeatherApp/WeatherApp.csproj
 
+      - name: SonarCloud Scan - Prepare Analysis
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          projectKey: ${{ secrets.SONAR_WEATHER_PRJ_KEY }}
+          organization: ${{ secrets.SONAR_ORGANIZATION_KEY }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
       - name: Build application
-        run: dotnet build WeatherApp/WeatherApp.csproj --configuration Release --no-restore
+        run: dotnet test WeatherApp.Tests/WeatherApp.Tests.csproj --no-build --verbosity normal || true
 
-      - name: Run tests
-        run: dotnet test WeatherApp/WeatherApp.csproj --no-build --verbosity normal || true
+      - name: Run tests with SonarCloud analysis
+        run: dotnet test WeatherApp/WeatherApp.csproj --no-build --verbosity normal
+
+      - name: SonarCloud Scan - Complete analysis
+        uses: SonarSource/sonarcloud-github-action@v1
+        with:
+          projectKey: ${{ secrets.SONAR_WEATHER_PRJ_KEY }}
+          organization: ${{ secrets.SONAR_ORGANIZATION_KEY }}
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Pull latest base image
         run: docker pull mcr.microsoft.com/dotnet/aspnet:9.0
@@ -78,7 +93,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
+    environment: production
     steps:
       - name: Azure Login
         uses: azure/login@v1
