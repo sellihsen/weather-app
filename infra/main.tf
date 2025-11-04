@@ -29,7 +29,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   sku_tier = "Free"
 
-  aad_profile {
+  azure_active_directory {
     managed = true
     # Optionally, specify admin group object IDs:
     # admin_group_object_ids = []
