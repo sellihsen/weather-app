@@ -1,17 +1,22 @@
 name: Terraform Infrastructure
 
 on:
-  push:
-    branches:
-      - master
   workflow_dispatch:
+    inputs:
+      run_infra:
+        description: 'Run Terraform Infrastructure deployment?'
+        required: true
+        default: 'no'
+        type: choice
+        options:
+          - yes
+          - no
 
 jobs:
   terraform:
     runs-on: ubuntu-latest
     environment: production
-    outputs:
-      no-changes: ${{ steps.plan-check.outputs.no-changes }}
+    if: github.event.inputs.run_infra == 'yes'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,7 +32,7 @@ jobs:
         
       - name: Clean terraform cache
         run: rm -rf ./infra/.terraform ./infra/.terraform.lock.hcl
-        
+
       - name: Terraform init
         run: terraform init -upgrade
         working-directory: ./infra
@@ -46,21 +51,13 @@ jobs:
         run: terraform plan -out=plan.tfplan
         working-directory: ./infra
 
-      - name: Check if Terraform plan has changes
-        id: plan-check
-        run: |
-          terraform show -no-color plan.tfplan | tee plan.txt
-          if grep -q "No changes. Infrastructure is up-to-date." plan.txt; then
-            echo "no-changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "no-changes=false" >> $GITHUB_OUTPUT
-          fi
-        working-directory: ./infra
-
-      - name: Validate no-changes output
-        run: echo "Terraform plan changes ${{ steps.plan-check.outputs.no-changes }}"
-
       - name: Terraform apply
-        if: ${{ steps.plan-check.outputs.no-changes == 'false' }}
         run: terraform apply -auto-approve plan.tfplan
         working-directory: ./infra
+
+  skip-notify:
+      if: github.event.inputs.run_infra == 'no' && github.event_name == 'workflow_dispatch'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Exit cleanly without running terraform
+          run: echo "Terraform apply skipped by user input - exiting gracefully."
