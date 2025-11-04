@@ -23,9 +23,16 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
           auth-type: 'service_principal'
-
+        
+      - name: Clean terraform cache
+        run: rm -rf ./infra/.terraform ./infra/.terraform.lock.hcl
       - name: Terraform init
         run: terraform init -upgrade
+        working-directory: ./infra
+      - name: Show Terraform version and providers
+        run: |
+          terraform version
+          terraform providers
         working-directory: ./infra
       - name: Terraform providers
         run: terraform providers
