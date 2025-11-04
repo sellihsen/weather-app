@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: weather-app
-        image: acrweather.azurecr.io/weather-app:latest
+        image: weatheracr2025.azurecr.io/weather-app:latest
         imagePullPolicy: Always
         ports:
         - name: http

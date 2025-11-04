@@ -22,6 +22,7 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+          auth-type: 'service_principal'
 
       - name: Terraform init
         run: terraform init

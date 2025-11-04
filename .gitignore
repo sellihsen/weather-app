@@ -1,89 +1,89 @@
 # Build results
-WeatherApp/[Dd]ebug/
-WeatherApp/[Dd]ebugPublic/
-WeatherApp/[Rr]elease/
-WeatherApp/[Rr]eleases/
-WeatherApp/x64/
-WeatherApp/x86/
-WeatherApp/[Aa][Rr][Mm]/
-WeatherApp/[Aa][Rr][Mm]64/
-WeatherApp/bld/
-WeatherApp/[Bb]in/
-WeatherApp/[Oo]bj/
+*/[Dd]ebug/
+*/[Dd]ebugPublic/
+*/[Rr]elease/
+*/[Rr]eleases/
+*/x64/
+*/x86/
+*/[Aa][Rr][Mm]/
+*/[Aa][Rr][Mm]64/
+*/bld/
+*/[Bb]in/
+*/[Oo]bj/
 
 # Visual Studio
-WeatherApp/.vs/
-WeatherApp/*.user
-WeatherApp/*.suo
-WeatherApp/*.userosscache
-WeatherApp/*.sln.docstates
+*/.vs/
+*/*.user
+*/*.suo
+*/*.userosscache
+*/*.sln.docstates
 
 # Rider
-WeatherApp/.idea/
+*/.idea/
 
 # Visual Studio Code
-WeatherApp/.vscode/
+*/.vscode/
 
 # NuGet packages
-WeatherApp/*.nupkg
-WeatherApp/*.snupkg
-WeatherApp/*.nuspec
-WeatherApp/.nuget/
-WeatherApp/packages/
-WeatherApp/project.lock.json
-WeatherApp/project.fragment.lock.json
+*/*.nupkg
+*/*.snupkg
+*/*.nuspec
+*/.nuget/
+*/packages/
+*/project.lock.json
+*/project.fragment.lock.json
 
 # DotCover
-WeatherApp/*.dotCover
+*/*.dotCover
 
 # Coverlet coverage files
-WeatherApp/coverage*.json
-WeatherApp/coverage*.xml
-WeatherApp/coverage*.info
+*/coverage*.json
+*/coverage*.xml
+*/coverage*.info
 
 # Resharper
-WeatherApp/_ReSharper*/
-WeatherApp/*.[Rr]e[Ss]harper
-WeatherApp/*.DotSettings.user
+*/_ReSharper*/
+*/*.[Rr]e[Ss]harper
+*/*.DotSettings.user
 
 # Backup files
-WeatherApp/*~ 
-WeatherApp/*.bak
-WeatherApp/*.tmp
-WeatherApp/*.swp
+*/*~ 
+*/*.bak
+*/*.tmp
+*/*.swp
 
 # Others
-WeatherApp/*.cache
-WeatherApp/*.log
-WeatherApp/*.vspscc
-WeatherApp/*.vssscc
+*/*.cache
+*/*.log
+*/*.vspscc
+*/*.vssscc
 
 # ASP.NET Scaffolding
-WeatherApp/ScaffoldingReadMe.txt
+*/ScaffoldingReadMe.txt
 
 # SQL Server files
-WeatherApp/*.mdf
-WeatherApp/*.ldf
-WeatherApp/*.ndf
+*/*.mdf
+*/*.ldf
+*/*.ndf
 
 # Entity Framework files
-WeatherApp/*.edmx.diagram
+*/*.edmx.diagram
 
 # Azure Web Apps publish files
-WeatherApp/*.Publish.xml
+*/*.Publish.xml
 
 # IIS Express
-WeatherApp//.vs/IISExpress/
+*/.vs/IISExpress/
 
 # Local History for JetBrains IDEs
-WeatherApp/.localhistory/
+*/.localhistory/
 
 # User secrets
-WeatherApp/secrets.json
+*/secrets.json
 
 # Windows image file caches
-WeatherApp/Thumbs.db
-WeatherApp/ehthumbs.db
+Wea*therApp/Thumbs.db
+*/ehthumbs.db
 
 # Folder config for macOS
-WeatherApp/.DS_Store
+*/.DS_Store
