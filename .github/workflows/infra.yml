@@ -53,6 +53,7 @@ jobs:
             echo "Plan file not found, aborting..."
             exit 1
           fi
+        working-directory: ./infra
 
       - name: Check plan.json validity
         run: |
