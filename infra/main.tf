@@ -36,14 +36,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type = "SystemAssigned"
   }
 
-  network_profile 
-  {
-    network_plugin    = "azure"
-    network_policy    = "calico"
+  network_profile {
+    network_plugin = "azure"
+    network_policy = "calico"
   }
 
-  addon_profile 
-  {
+  addon_profile {
     oms_agent {
       enabled                    = true
       log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
@@ -51,9 +49,10 @@ resource "azurerm_kubernetes_cluster" "aks" {
   }
 
   sku_tier = "Free"
-
+  
   depends_on = [azurerm_container_registry.acr]
 }
+
 
 resource "azurerm_role_assignment" "acr_pull" {
   scope                = azurerm_container_registry.acr.id
@@ -66,6 +65,22 @@ resource "azurerm_application_insights" "appi" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   application_type    = "web"
+}
+
+resource "azurerm_storage_account" "tfstate" {
+  name                     = "${var.resource_group_name}tfstate"
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  allow_blob_public_access = false
+}
+
+resource "azurerm_storage_container" "tfstate" {
+  name                  = "tfstate"
+  storage_account_name  = azurerm_storage_account.tfstate.name
+  container_access_type = "private"
 }
 
 resource "azurerm_key_vault" "kv" {

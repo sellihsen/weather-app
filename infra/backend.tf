@@ -1,8 +1,8 @@
 terraform {
   backend "azurerm" {
-    resource_group_name  = var.resource_group_name
-    storage_account_name = azurerm_storage_account.tfstate.name
-    container_name       = azurerm_storage_container.tfstate.name
+    resource_group_name  = "rg-weather"
+    storage_account_name = "storage-weather"
+    container_name       = "tfstate"
     key                  = "terraform.tfstate"
   }
 }
