@@ -47,6 +47,12 @@ jobs:
           terraform show -json plan.tfplan > plan.json
         working-directory: ./infra
 
+      - name: Validate plan.json
+        run: |
+          cat plan.json
+          jq empty plan.json
+        working-directory: ./infra
+
       - name: Check if plan has changes
         id: check_plan
         run: |
