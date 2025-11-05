@@ -61,7 +61,7 @@ resource "azurerm_application_insights" "appi" {
 }
 
 resource "azurerm_storage_account" "tfstate" {
-  name                     = "${var.resource_group_name}tfstate"
+  name                     = substr(lower(replace(var.resource_group_name, "-", "")), 0, 24)
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -93,10 +93,10 @@ resource "azurerm_key_vault" "kv" {
     object_id = data.azurerm_client_config.current.object_id
 
     secret_permissions = [
-      "get",
-      "list",
-      "set",
-      "delete"
+      "Get",
+      "List",
+      "Set",
+      "Delete"
     ]
   }
 }
