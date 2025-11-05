@@ -41,13 +41,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     network_policy = "calico"
   }
 
-  addon_profile {
-    oms_agent {
-      enabled                    = true
-      log_analytics_workspace_id = azurerm_log_analytics_workspace.law.id
-    }
-  }
-
   sku_tier = "Free"
   
   depends_on = [azurerm_container_registry.acr]
@@ -74,7 +67,10 @@ resource "azurerm_storage_account" "tfstate" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
 
-  allow_blob_public_access = false
+  network_rules {
+    default_action             = "Deny"
+    bypass                    = ["AzureServices"]
+  }
 }
 
 resource "azurerm_storage_container" "tfstate" {
