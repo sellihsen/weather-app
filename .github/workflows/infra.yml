@@ -47,17 +47,21 @@ jobs:
           terraform show -json plan.tfplan > plan.json
         working-directory: ./infra
 
-      - name: Validate plan.json
+      - name: Check plan.json validity
         run: |
-          cat plan.json
-          jq empty plan.json
+          cat ./infra/plan.json
+          jq empty ./infra/plan.json
         working-directory: ./infra
 
       - name: Check if plan has changes
         id: check_plan
         run: |
-          jq '.resource_changes | length' plan.json > plan_changes_count.txt
-          echo "plan_changes_count=$(cat plan_changes_count.txt)" >> $GITHUB_OUTPUT
+          if jq -e '.resource_changes' plan.json > /dev/null; then
+            CHANGES=$(jq '.resource_changes | length' plan.json)
+          else
+            CHANGES=0
+          fi
+          echo "plan_changes_count=$CHANGES" >> $GITHUB_OUTPUT
         working-directory: ./infra
 
       - name: Terraform apply
