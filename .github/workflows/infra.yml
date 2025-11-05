@@ -43,9 +43,16 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -out=plan.tfplan
+          terraform plan -out=plan.tfplan -input=false
           terraform show -json plan.tfplan > plan.json
         working-directory: ./infra
+
+      - name: Check plan.tfplan exists
+        run: |
+          if [ ! -f ./infra/plan.tfplan ]; then
+            echo "Plan file not found, aborting..."
+            exit 1
+          fi
 
       - name: Check plan.json validity
         run: |
@@ -66,7 +73,7 @@ jobs:
 
       - name: Terraform apply
         if: steps.check_plan.outputs.plan_changes_count != '0'
-        run: terraform apply -auto-approve plan.tfplan \
+        run: terraform apply -auto-approve -input=false plan.tfplan \
           -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
           -var "object_id=${{ env.AZURE_OBJECT_ID }}"
         working-directory: ./infra
