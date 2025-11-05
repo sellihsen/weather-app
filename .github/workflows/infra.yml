@@ -2,21 +2,14 @@ name: Terraform Infrastructure
 
 on:
   workflow_dispatch:
-    inputs:
-      run_infra:
-        description: 'Run Terraform Infrastructure deployment?'
-        required: true
-        default: 'no'
-        type: choice
-        options:
-          - yes
-          - no
 
+env:
+  AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  AZURE_OBJECT_ID: ${{ secrets.AZURE_OBJECT_ID }}
 jobs:
   terraform:
     runs-on: ubuntu-latest
     environment: production
-    if: github.event.inputs.run_infra == 'yes'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -48,17 +41,23 @@ jobs:
         working-directory: ./infra
 
       - name: Terraform plan
-        run: terraform plan -out=plan.tfplan
+        id: plan
+        run: |
+          terraform plan -out=plan.tfplan
+          terraform show -json plan.tfplan > plan.json
+        working-directory: ./infra
+
+      - name: Check if plan has changes
+        id: check_plan
+        run: |
+          jq '.resource_changes | length' plan.json > plan_changes_count.txt
+          echo "plan_changes_count=$(cat plan_changes_count.txt)" >> $GITHUB_OUTPUT
         working-directory: ./infra
 
       - name: Terraform apply
-        run: terraform apply -auto-approve plan.tfplan
+        if: steps.check_plan.outputs.plan_changes_count != '0'
+        run: terraform apply -auto-approve plan.tfplan \
+          -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
+          -var "object_id=${{ env.AZURE_OBJECT_ID }}"
         working-directory: ./infra
-
-  skipped:
-    if: github.event.inputs.run_infra == 'no'
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Skipping terraform deploy per user request..."
-    outputs:
-      run-status: 'skipped'
+      
