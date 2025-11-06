@@ -31,7 +31,7 @@ variable "object_id" {
 }
 
 variable "max_node" {
-  type = int
+  type = number
   default = 5
   description = "max number of node"
 }
