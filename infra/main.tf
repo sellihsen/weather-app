@@ -46,7 +46,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_container_registry.acr]
 }
 
-resource "azurerm_policy_definition" "limit_node_count" {
+resource "azapi_policy_definition" "limit_node_count" {
   name         = "limit-node-count"
   policy_type  = "Custom"
   mode         = "All"
@@ -63,7 +63,7 @@ resource "azurerm_policy_definition" "limit_node_count" {
         },
         {
           "field": "Microsoft.ContainerService/ManagedClusters/agentPoolProfiles[*].count",
-          "greaterThan": var.max_node
+          "greaterThan": 5
         }
       ]
     },
@@ -74,10 +74,19 @@ resource "azurerm_policy_definition" "limit_node_count" {
   POLICY
 }
 
-resource "azurerm_policy_assignment" "limit_node_count" {
-  name                 = "limit-node-count"
-  scope                = azurerm_resource_group.rg.id
-  policy_definition_id = azurerm_policy_definition.limit_node_count.id
+resource "azapi_resource" "limit_node_count" {
+  type      = "Microsoft.Authorization/policyAssignments@2020-09-01"
+  name      = "limit-node-count"
+  scope     = azurerm_resource_group.rg.id
+  parent_id = azurerm_resource_group.rg.id
+
+  body = jsonencode({
+    properties = {
+      displayName      = "Limit node count to 5"
+      policyDefinitionId = azapi_policy_definition.limit_node_count.id
+      enforcementMode  = "Default"
+    }
+  })
 }
 
 resource "azurerm_policy_definition" "restrict_region" {
@@ -113,10 +122,12 @@ resource "helm_release" "cert_manager" {
   namespace  = "cert-manager"
   version    = "v1.19.1"
 
-  set {
-    name  = "installCRDs"
-    value = "true"
-  }
+  set = [
+    {
+      name  = "installCRDs"
+      value = "true"
+    }
+  ]
 }
 
 resource "kubernetes_namespace" "weather_production" {
