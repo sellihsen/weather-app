@@ -87,3 +87,10 @@ Wea*therApp/Thumbs.db
 
 # Folder config for macOS
 */.DS_Store
+
+
+#terraform
+infra/.terraform
+infra/.terraform.lock.hcl
+infra/*.json
+infra/*.tfplan
