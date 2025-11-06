@@ -92,24 +92,28 @@ resource "azapi_resource" "limit_node_count_assignment" {
   })
 }
 
-resource "azapi_resource" "restrict_region" {
-  name = "restrict-region"
-  policy_type = "Custom"
-  mode = "All"
-  display_name = "Restrict AKS deployment to Westeurope"
-  description = "This policy enforces deployment only in Westeurope"
+resource "azapi_resource" "restrict_region_policy_definition" {
+  type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
+  name      = "restrict-region"
+  parent_id = var.subscription_id
 
-  policy_rule = <<POLICY
-  {
-    "if": {
-      "field": "location",
-      "notEquals": "westeurope"
-    },
-    "then": {
-      "effect": "deny"
+  body = jsonencode({
+    properties = {
+      displayName = "Restrict AKS deployment to Westeurope"
+      policyType  = "Custom"
+      mode        = "All"
+      description = "This policy enforces deployment only in Westeurope"
+      policyRule  = {
+        if = {
+          field = "location"
+          notEquals = "westeurope"
+        }
+        then = {
+          effect = "deny"
+        }
+      }
     }
-  }
-  POLICY
+  })
 }
 
 resource "azapi_resource" "restrict_region_assignment" {
@@ -120,7 +124,7 @@ resource "azapi_resource" "restrict_region_assignment" {
   body = jsonencode({
     properties = {
       displayName       = "Restrict AKS to Westeurope"
-      policyDefinitionId = azapi_resource.restrict_region.id
+      policyDefinitionId = azapi_resource.restrict_region_policy_definition.id
       enforcementMode    = "Default"
       scope              = azurerm_resource_group.rg.id
     }
