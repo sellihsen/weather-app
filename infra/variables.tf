@@ -33,5 +33,5 @@ variable "object_id" {
 
 variable "subscription_id" {
   type = string
-  description = "Subscription ID"
+  description = "Azure Subscription ID"
 }

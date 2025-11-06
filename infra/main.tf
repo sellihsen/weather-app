@@ -46,10 +46,15 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_container_registry.acr]
 }
 
+locals {
+  subscription_resource_id = "/subscriptions/${var.subscription_id}"
+}
+
 resource "azapi_resource" "limit_node_count_policy_definition" {
   type = "Microsoft.Authorization/policyDefinitions@2021-06-01"
   name = "limit-node-count"
-  parent_id = var.subscription_id
+  parent_id = local.subscription_resource_id
+
   body = jsonencode({
     properties = {
       displayName = "Limit node count to 5 in AKS"
@@ -95,7 +100,7 @@ resource "azapi_resource" "limit_node_count_assignment" {
 resource "azapi_resource" "restrict_region_policy_definition" {
   type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
   name      = "restrict-region"
-  parent_id = var.subscription_id
+  parent_id = local.subscription_resource_id
 
   body = jsonencode({
     properties = {
