@@ -101,6 +101,9 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: production
+    outputs:
+      ip: ${{ steps.getip.outputs.ip }}
+      hostname: ${{ steps.hostname.outputs.hostname }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -158,14 +161,14 @@ jobs:
       - name: Build dynamic hostname
         id: hostname
         run: |
-          IP_DASHED=${{ steps.getip.outputs.ip//./- }}
+          IP_DASHED=${{ steps.getip.outputs.ip }}
           HOSTNAME="weather-app.${IP_DASHED}.nip.io"
           echo "hostname=$HOSTNAME" >> $GITHUB_OUTPUT
 
       - name: Prepare ingress with dynamic host
         run: |
-          sed "s/weather.example.com/${{ steps.hostname.outputs.hostname }}/g" ./k8s/ingress.yaml > ./k8s/ingress.generated.yaml
-
+          sed "s/weather.example.com/${{ steps.hostname.outputs.hostname }}/g" ingress.yaml > ingress.generated.yaml
+        working-directory: ./k8s
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f ingress.generated.yaml -n ns-weather-production
