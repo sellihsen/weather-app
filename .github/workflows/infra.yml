@@ -14,10 +14,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-        working-directory: ./infra
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
 
@@ -46,38 +42,10 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: |
-          terraform plan -out=plan.tfplan -input=false -no-color
-          terraform show -json -no-color plan.tfplan > plan.json
-          jq empty plan.json
+        run: terraform plan -out=plan.tfplan -input=false
         working-directory: ./infra
 
-      - name: Check plan.tfplan exists
-        run: |
-          if [ ! -f plan.tfplan ]; then
-            echo "Plan file not found, aborting..."
-            exit 1
-          fi
-        working-directory: ./infra
-
-      - name: Check plan.json validity
-        run: |
-          cat plan.json
-          set +e
-          jq empty plan.json
-        working-directory: ./infra
-
-      - name: Check if plan has changes
-        id: check_plan
-        run: |
-          if jq -e '.resource_changes' plan.json > /dev/null; then
-            CHANGES=$(jq '.resource_changes | length' plan.json)
-          else
-            CHANGES=0
-          fi
-          echo "plan_changes_count=$CHANGES" >> $GITHUB_OUTPUT
-        working-directory: ./infra
-
+      
       - name: Terraform apply
         if: steps.check_plan.outputs.plan_changes_count != '0'
         run: terraform apply -auto-approve -input=false plan.tfplan \
