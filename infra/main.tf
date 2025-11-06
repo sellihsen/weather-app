@@ -80,12 +80,14 @@ resource "azapi_resource" "limit_node_count_policy_definition" {
 resource "azapi_resource" "limit_node_count_assignment" {
   type = "Microsoft.Authorization/policyAssignments@2020-09-01"
   name = "limit-node-count-assignment"
-  scope = azurerm_resource_group.rg.id
+  parent_id = azurerm_resource_group.rg.id
+
   body = jsonencode({
     properties = {
-      displayName = "Limit node count to 5"
+      displayName       = "Limit node count to 5"
       policyDefinitionId = azapi_resource.limit_node_count_policy_definition.id
-      enforcementMode = "Default"
+      enforcementMode    = "Default"
+      scope              = azurerm_resource_group.rg.id
     }
   })
 }
