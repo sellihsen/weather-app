@@ -46,57 +46,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_container_registry.acr]
 }
 
-locals {
-  subscription_resource_id = "/subscriptions/${var.subscription_id}"
-}
-
-resource "azapi_resource" "limit_node_count_policy_definition" {
-  type = "Microsoft.Authorization/policyDefinitions@2021-06-01"
-  name = "limit-node-count"
-  parent_id = local.subscription_resource_id
-
-  body = jsonencode({
-    properties = {
-      displayName = "Limit node count to 5 in AKS"
-      policyType  = "Custom"
-      mode        = "All"
-      description = "This policy restricts the node count to maximum 5 for AKS clusters"
-      policyRule  = {
-        if = {
-          allOf = [
-            {
-              field = "type"
-              equals = "Microsoft.ContainerService/ManagedClusters"
-            },
-            {
-              field = "Microsoft.ContainerService/ManagedClusters/agentPoolProfiles[*].count"
-              greaterThan = 5
-            }
-          ]
-        }
-        then = {
-          effect = "deny"
-        }
-      }
-    }
-  })
-}
-
-resource "azapi_resource" "limit_node_count_assignment" {
-  type = "Microsoft.Authorization/policyAssignments@2020-09-01"
-  name = "limit-node-count-assignment"
-  parent_id = azurerm_resource_group.rg.id
-
-  body = jsonencode({
-    properties = {
-      displayName       = "Limit node count to 5"
-      policyDefinitionId = azapi_resource.limit_node_count_policy_definition.id
-      enforcementMode    = "Default"
-      scope              = azurerm_resource_group.rg.id
-    }
-  })
-}
-
 resource "kubernetes_namespace" "weather_production" {
   metadata {
     name = "ns-weather-production"

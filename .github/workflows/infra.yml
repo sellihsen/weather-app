@@ -6,7 +6,6 @@ on:
 env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   AZURE_OBJECT_ID: ${{ secrets.AZURE_OBJECT_ID }}
-  SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTION_ID }}
 jobs:
   infrastructure:
     runs-on: ubuntu-latest
@@ -46,8 +45,7 @@ jobs:
         run: |
           terraform plan -out=plan.tfplan -input=false \
             -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
-            -var "object_id=${{ env.AZURE_OBJECT_ID }}" \
-            -var "subscription_id=${{ env.SUBSCRIPTION_ID }}"
+            -var "object_id=${{ env.AZURE_OBJECT_ID }}" 
         working-directory: ./infra
 
       
@@ -55,8 +53,7 @@ jobs:
         run: |
           terraform apply -auto-approve -input=false \
             -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
-            -var "object_id=${{ env.AZURE_OBJECT_ID }}" \
-            -var "subscription_id=${{ env.SUBSCRIPTION_ID }}" \
+            -var "object_id=${{ env.AZURE_OBJECT_ID }}" 
             plan.tfplan
         working-directory: ./infra
       
