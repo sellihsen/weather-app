@@ -8,7 +8,7 @@ ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
@@ -32,14 +32,9 @@ RUN dotnet publish "WeatherApp.csproj" -c $BUILD_CONFIGURATION -o /app/publish /
 
 # Final stage
 FROM base AS final
-# Update and upgrade packages first
-RUN apt-get update && apt-get upgrade -y
 
-# # Remove vulnerable/unneeded packages
-# RUN apt-get remove --purge -y libpam-modules libpam-modules-bin libpam-runtime libpam0g zlib1g
-
-# Clean up
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Mise à jour des paquets
+RUN apt-get update && apt-get upgrade -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 COPY --from=publish /app/publish .
