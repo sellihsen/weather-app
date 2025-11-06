@@ -49,7 +49,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 resource "azapi_resource" "limit_node_count_policy_definition" {
   type = "Microsoft.Authorization/policyDefinitions@2021-06-01"
   name = "limit-node-count"
-  parent_id = data.azurerm_subscription.primary.id
+  parent_id = var.subscription_id
   body = jsonencode({
     properties = {
       displayName = "Limit node count to 5 in AKS"
@@ -77,17 +77,15 @@ resource "azapi_resource" "limit_node_count_policy_definition" {
   })
 }
 
-resource "azapi_resource" "limit_node_count" {
-  type      = "Microsoft.Authorization/policyAssignments@2020-09-01"
-  name      = "limit-node-count"
-  scope     = azurerm_resource_group.rg.id
-  parent_id = azurerm_resource_group.rg.id
-
+resource "azapi_resource" "limit_node_count_assignment" {
+  type = "Microsoft.Authorization/policyAssignments@2020-09-01"
+  name = "limit-node-count-assignment"
+  scope = azurerm_resource_group.rg.id
   body = jsonencode({
     properties = {
-      displayName      = "Limit node count to 5"
-      policyDefinitionId = azapi_policy_definition.limit_node_count.id
-      enforcementMode  = "Default"
+      displayName = "Limit node count to 5"
+      policyDefinitionId = azapi_resource.limit_node_count_policy_definition.id
+      enforcementMode = "Default"
     }
   })
 }

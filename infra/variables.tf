@@ -29,3 +29,9 @@ variable "object_id" {
   type = string
   description = "Object ID for Azure Principal"
 }
+
+
+variable "subscription_id" {
+  type = string
+  description = "Subscription ID"
+}
