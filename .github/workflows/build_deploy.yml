@@ -101,9 +101,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     environment: production
-    outputs:
-      ip: ${{ steps.getip.outputs.ip }}
-      hostname: ${{ steps.hostname.outputs.hostname }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -134,11 +131,18 @@ jobs:
       - name: Test kubectl connection
         run: kubectl cluster-info
 
+      - name: Create Application Insights secret
+        run: |
+          kubectl create secret generic appinsights-secret \
+            --from-literal=APPLICATIONINSIGHTS_CONNECTION_STRING="${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}" \
+            --dry-run=client -o yaml | kubectl apply -n ns-weather-production -f -
+
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f deployment.yaml -n ns-weather-production
           kubectl apply -f service.yaml -n ns-weather-production
           kubectl apply -f calico-networkpolicy.yaml -n ns-weather-production
+          kubectl apply -f calico-ingress.yaml -n ns-weather-production
           kubectl apply -f clusterIssuer.yaml
         working-directory: ./k8s
 
@@ -152,25 +156,3 @@ jobs:
         run: |
           kubectl get pods -l app=weather-app
           kubectl get service weather-app-service -n ns-weather-production
-
-      - name: Get LoadBalancer IP
-        id: getip
-        run: |
-          IP=$(kubectl get svc weather-app-service -n ns-weather-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          echo "ip=$IP" >> $GITHUB_OUTPUT
-
-      - name: Build dynamic hostname
-        id: hostname
-        run: |
-          IP_DASHED=${{ steps.getip.outputs.ip }}
-          HOSTNAME="weather-app.${IP_DASHED}.nip.io"
-          echo "hostname=$HOSTNAME" >> $GITHUB_OUTPUT
-
-      - name: Prepare ingress with dynamic host
-        run: |
-          sed "s/weather.example.com/${{ steps.hostname.outputs.hostname }}/g" ingress.yaml > ingress.generated.yaml
-        working-directory: ./k8s
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f ingress.generated.yaml -n ns-weather-production
-        working-directory: ./k8s

@@ -28,6 +28,11 @@ spec:
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Production"
+        - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: appinsights-secret
+              key: APPLICATIONINSIGHTS_CONNECTION_STRING
         resources:
           requests:
             memory: "128Mi"
