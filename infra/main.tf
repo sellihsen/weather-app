@@ -9,7 +9,7 @@ resource "azurerm_container_registry" "acr" {
   location            = azurerm_resource_group.rg.location
   sku                 = "Basic"
   admin_enabled       = true
-  public_network_access_enabled = false
+  # public_network_access_enabled = false
 }
 
 resource "azurerm_log_analytics_workspace" "law" {
@@ -28,7 +28,7 @@ resource "azurerm_kubernetes_cluster" "aks" {
 
   default_node_pool {
     name       = "agentpool"
-    node_count = 1
+    node_count = 3
     vm_size    = "Standard_B2s"
   }
 
@@ -46,6 +46,84 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_container_registry.acr]
 }
 
+resource "azurerm_policy_definition" "limit_node_count" {
+  name         = "limit-node-count"
+  policy_type  = "Custom"
+  mode         = "All"
+  display_name = "Limit node count to 5 in AKS"
+  description  = "This policy restricts the node count to maximum 5 for AKS clusters"
+
+  policy_rule = <<POLICY
+  {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.ContainerService/ManagedClusters"
+        },
+        {
+          "field": "Microsoft.ContainerService/ManagedClusters/agentPoolProfiles[*].count",
+          "greaterThan": var.max_node
+        }
+      ]
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+  POLICY
+}
+
+resource "azurerm_policy_assignment" "limit_node_count" {
+  name                 = "limit-node-count"
+  scope                = azurerm_resource_group.rg.id
+  policy_definition_id = azurerm_policy_definition.limit_node_count.id
+}
+
+resource "azurerm_policy_definition" "restrict_region" {
+  name = "restrict-region"
+  policy_type = "Custom"
+  mode = "All"
+  display_name = "Restrict AKS deployment to Westeurope"
+  description = "This policy enforces deployment only in Westeurope"
+
+  policy_rule = <<POLICY
+  {
+    "if": {
+      "field": "location",
+      "notEquals": "westeurope"
+    },
+    "then": {
+      "effect": "deny"
+    }
+  }
+  POLICY
+}
+
+resource "azurerm_policy_assignment" "restrict_region" {
+  name = "restrict-region"
+  scope = azurerm_resource_group.rg.id
+  policy_definition_id = azurerm_policy_definition.restrict_region.id
+}
+
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  namespace  = "cert-manager"
+  version    = "v1.19.1"
+
+  set {
+    name  = "installCRDs"
+    value = "true"
+  }
+}
+
+resource "kubernetes_namespace" "weather_production" {
+  metadata {
+    name = "ns-weather-production"
+  }
+}
 
 resource "azurerm_role_assignment" "acr_pull" {
   scope                = azurerm_container_registry.acr.id
@@ -58,25 +136,6 @@ resource "azurerm_application_insights" "appi" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   application_type    = "web"
-}
-
-resource "azurerm_storage_account" "tfstate" {
-  name                     = substr(lower(replace(var.resource_group_name, "-", "")), 0, 24)
-  resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-
-  network_rules {
-    default_action             = "Deny"
-    bypass                    = ["AzureServices"]
-  }
-}
-
-resource "azurerm_storage_container" "tfstate" {
-  name                  = "tfstate"
-  storage_account_name  = azurerm_storage_account.tfstate.name
-  container_access_type = "private"
 }
 
 resource "azurerm_key_vault" "kv" {

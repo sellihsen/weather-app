@@ -29,3 +29,9 @@ variable "object_id" {
   type = string
   description = "Object ID for Azure Principal"
 }
+
+variable "max_node" {
+  type = int
+  default = 5
+  description = "max number of node"
+}
