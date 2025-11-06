@@ -57,7 +57,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
       - name: Pull latest base image
-        run: docker pull mcr.microsoft.com/dotnet/aspnet:9.0
+        run: docker pull mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 
       - name: Build Docker image locally
         run: docker build -t ${{ env.IMAGE_NAME }}:${{ github.sha }} -f WeatherApp/Dockerfile WeatherApp
@@ -133,7 +133,7 @@ jobs:
           IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image-tag }}
           kubectl set image deployment/weather-app \
             weather-app=$IMAGE_TAG
-          kubectl rollout status deployment/weather-app --timeout=600s
+          kubectl rollout status deployment/weather-app --namespace ns-weather-production  --timeout=600s
 
       - name: Check deployment status
         run: |
