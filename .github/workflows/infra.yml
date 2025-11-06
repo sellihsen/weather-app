@@ -1,4 +1,4 @@
-name: Terraform Infrastructure
+name: Provisioning Infrastructure
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ env:
   AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
   AZURE_OBJECT_ID: ${{ secrets.AZURE_OBJECT_ID }}
 jobs:
-  terraform:
+  infrastructure:
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -47,7 +47,6 @@ jobs:
 
       
       - name: Terraform apply
-        if: steps.check_plan.outputs.plan_changes_count != '0'
         run: terraform apply -auto-approve -input=false plan.tfplan \
           -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
           -var "object_id=${{ env.AZURE_OBJECT_ID }}"
