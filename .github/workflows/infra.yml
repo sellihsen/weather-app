@@ -47,8 +47,10 @@ jobs:
 
       
       - name: Terraform apply
-        run: terraform apply -auto-approve -input=false plan.tfplan \
-          -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
-          -var "object_id=${{ env.AZURE_OBJECT_ID }}"
+        run: |
+          terraform apply -auto-approve -input=false \
+            -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
+            -var "object_id=${{ env.AZURE_OBJECT_ID }}" \
+            plan.tfplan
         working-directory: ./infra
       
