@@ -47,7 +47,7 @@ jobs:
       - name: Terraform plan
         id: plan
         run: |
-          terraform plan -out=plan.tfplan -input=false
+          terraform plan -out=plan.tfplan -input=false -no-color ls -l plan.tfplan
           terraform show -json -no-color plan.tfplan > plan.json
         working-directory: ./infra
 
