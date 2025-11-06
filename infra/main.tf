@@ -92,30 +92,19 @@ resource "azapi_resource" "limit_node_count_assignment" {
   })
 }
 
-resource "azurerm_policy_definition" "restrict_region" {
-  name = "restrict-region"
-  policy_type = "Custom"
-  mode = "All"
-  display_name = "Restrict AKS deployment to Westeurope"
-  description = "This policy enforces deployment only in Westeurope"
+resource "azapi_resource" "restrict_region_assignment" {
+  type      = "Microsoft.Authorization/policyAssignments@2020-09-01"
+  name      = "restrict-region-assignment"
+  parent_id = azurerm_resource_group.rg.id
 
-  policy_rule = <<POLICY
-  {
-    "if": {
-      "field": "location",
-      "notEquals": "westeurope"
-    },
-    "then": {
-      "effect": "deny"
+  body = jsonencode({
+    properties = {
+      displayName       = "Restrict AKS to Westeurope"
+      policyDefinitionId = azurerm_policy_definition.restrict_region.id
+      enforcementMode    = "Default"
+      scope              = azurerm_resource_group.rg.id
     }
-  }
-  POLICY
-}
-
-resource "azurerm_policy_assignment" "restrict_region" {
-  name = "restrict-region"
-  scope = azurerm_resource_group.rg.id
-  policy_definition_id = azurerm_policy_definition.restrict_region.id
+  })
 }
 
 resource "helm_release" "cert_manager" {
