@@ -129,7 +129,11 @@ jobs:
         run: kubectl cluster-info
 
       - name: Apply Kubernetes manifests
-        run: kubectl apply -f ./k8s/deployment.yaml -n ns-weather-production
+        run: |
+          kubectl apply -f deployment.yaml -n ns-weather-production
+          kubectl apply -f service.yaml -n ns-weather-production
+          kubectl apply -f calico-networkpolicy.yaml -n ns-weather-production
+        working-directory: ./k8s
 
       - name: Update deployment image and rollout
         run: |
