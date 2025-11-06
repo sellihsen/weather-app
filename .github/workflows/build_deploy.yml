@@ -128,12 +128,14 @@ jobs:
       - name: Test kubectl connection
         run: kubectl cluster-info
 
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f ./k8s/deployment.yaml -n ns-weather-production
+
       - name: Update deployment image and rollout
         run: |
           IMAGE_TAG=${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.build.outputs.image-tag }}
-          kubectl set image deployment/weather-app \
-            weather-app=$IMAGE_TAG
-          kubectl rollout status deployment/weather-app --namespace ns-weather-production  --timeout=600s
+          kubectl set image deployment/weather-app weather-app=$IMAGE_TAG -n ns-weather-production
+          kubectl rollout status deployment/weather-app -n ns-weather-production --timeout=600s
 
       - name: Check deployment status
         run: |
