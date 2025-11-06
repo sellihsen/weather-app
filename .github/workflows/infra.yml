@@ -42,7 +42,10 @@ jobs:
 
       - name: Terraform plan
         id: plan
-        run: terraform plan -out=plan.tfplan -input=false
+        run: |
+          terraform plan -out=plan.tfplan -input=false \
+            -var "tenant_id=${{ env.AZURE_TENANT_ID }}" \
+            -var "object_id=${{ env.AZURE_OBJECT_ID }}"
         working-directory: ./infra
 
       
