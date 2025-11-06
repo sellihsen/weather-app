@@ -48,22 +48,8 @@ jobs:
         id: plan
         run: |
           terraform plan -out=plan.tfplan -input=false -no-color
-
-          # Vérifier existence du plan
-          if [ ! -f plan.tfplan ]; then
-            echo "Plan file not found, aborting..."
-            exit 1
-          fi
-
-          # Export JSON plan dans variable
-          PLAN_JSON=$(terraform show -json -no-color plan.tfplan)
-
-          # Sauvegarder dans plan.json
-          echo "$PLAN_JSON" > plan.json
-
-          # Vérification syntaxe JSON
-          echo "Validating JSON plan..."
-          echo "$PLAN_JSON" | jq empty
+          terraform show -json -no-color plan.tfplan > plan.json
+          jq empty plan.json
         working-directory: ./infra
 
       - name: Check plan.tfplan exists
