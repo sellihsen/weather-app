@@ -48,7 +48,7 @@ jobs:
         id: plan
         run: |
           terraform plan -out=plan.tfplan -input=false
-          terraform show -json plan.tfplan > plan.json
+          terraform show -json -no-color plan.tfplan > plan.json
         working-directory: ./infra
 
       - name: Check plan.tfplan exists
