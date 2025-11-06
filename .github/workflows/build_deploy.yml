@@ -150,7 +150,7 @@ jobs:
       - name: Check deployment status
         run: |
           kubectl get pods -l app=weather-app
-          kubectl get service weather-app-service
+          kubectl get service weather-app-service -n -n ns-weather-production
 
       - name: Get LoadBalancer IP
         id: getip
