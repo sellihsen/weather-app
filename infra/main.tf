@@ -97,60 +97,6 @@ resource "azapi_resource" "limit_node_count_assignment" {
   })
 }
 
-resource "azapi_resource" "restrict_region_policy_definition" {
-  type      = "Microsoft.Authorization/policyDefinitions@2021-06-01"
-  name      = "restrict-region"
-  parent_id = local.subscription_resource_id
-
-  body = jsonencode({
-    properties = {
-      displayName = "Restrict AKS deployment to Westeurope"
-      policyType  = "Custom"
-      mode        = "All"
-      description = "This policy enforces deployment only in Westeurope"
-      policyRule  = {
-        if = {
-          field = "location"
-          notEquals = "westeurope"
-        }
-        then = {
-          effect = "deny"
-        }
-      }
-    }
-  })
-}
-
-resource "azapi_resource" "restrict_region_assignment" {
-  type      = "Microsoft.Authorization/policyAssignments@2020-09-01"
-  name      = "restrict-region-assignment"
-  parent_id = azurerm_resource_group.rg.id
-
-  body = jsonencode({
-    properties = {
-      displayName       = "Restrict AKS to Westeurope"
-      policyDefinitionId = azapi_resource.restrict_region_policy_definition.id
-      enforcementMode    = "Default"
-      scope              = azurerm_resource_group.rg.id
-    }
-  })
-}
-
-resource "helm_release" "cert_manager" {
-  name       = "cert-manager"
-  repository = "https://charts.jetstack.io"
-  chart      = "cert-manager"
-  namespace  = "cert-manager"
-  version    = "v1.19.1"
-
-  set = [
-    {
-      name  = "installCRDs"
-      value = "true"
-    }
-  ]
-}
-
 resource "kubernetes_namespace" "weather_production" {
   metadata {
     name = "ns-weather-production"
