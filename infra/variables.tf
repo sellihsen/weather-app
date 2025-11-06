@@ -19,3 +19,13 @@ variable "acr_name" {
 variable "aks_name" {
   default = "aks-cluster-weather"
 }
+
+variable "tenant_id" {
+  type = string
+  description = "Tenant ID for Azure"
+}
+
+variable "object_id" {
+  type = string
+  description = "Object ID for Azure Principal"
+}
