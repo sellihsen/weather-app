@@ -58,6 +58,7 @@ jobs:
       - name: Check plan.json validity
         run: |
           cat plan.json
+<<<<<<< HEAD
           set +e
           retval=$(jq -re '""' < plan.json 2>&1)
           if [ -z "${retval}" ]; then
@@ -65,6 +66,9 @@ jobs:
           else
             echo "ERROR: jq - ${retval}"
           fi
+=======
+          jq empty plan.json
+>>>>>>> 2787b356dcf49d68f292aec318471a65da705f94
         working-directory: ./infra
 
       - name: Check if plan has changes
