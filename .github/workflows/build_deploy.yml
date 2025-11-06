@@ -142,7 +142,7 @@ jobs:
           kubectl apply -f deployment.yaml -n ns-weather-production
           kubectl apply -f service.yaml -n ns-weather-production
           kubectl apply -f calico-networkpolicy.yaml -n ns-weather-production
-          kubectl apply -f calico-ingress.yaml -n ns-weather-production
+          kubectl apply -f ingress.yaml -n ns-weather-production
           kubectl apply -f clusterIssuer.yaml
         working-directory: ./k8s
 
