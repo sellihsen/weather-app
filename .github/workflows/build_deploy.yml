@@ -102,6 +102,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
       - name: Azure Login
         uses: azure/login@v1
         with:
@@ -145,3 +148,25 @@ jobs:
         run: |
           kubectl get pods -l app=weather-app
           kubectl get service weather-app-service
+
+      - name: Get LoadBalancer IP
+        id: getip
+        run: |
+          IP=$(kubectl get svc weather-app-service -n ns-weather-production -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "ip=$IP" >> $GITHUB_OUTPUT
+
+      - name: Build dynamic hostname
+        id: hostname
+        run: |
+          IP_DASHED=${{ steps.getip.outputs.ip//./- }}
+          HOSTNAME="weather-app.${IP_DASHED}.nip.io"
+          echo "hostname=$HOSTNAME" >> $GITHUB_OUTPUT
+
+      - name: Prepare ingress with dynamic host
+        run: |
+          sed "s/weather.example.com/${{ steps.hostname.outputs.hostname }}/g" ./k8s/ingress.yaml > ./k8s/ingress.generated.yaml
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f ingress.generated.yaml -n ns-weather-production
+        working-directory: ./k8s
