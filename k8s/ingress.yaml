@@ -9,10 +9,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - weather.example.com
+    - weather2025.fr
     secretName: weather-app-tls
   rules:
-  - host: weather.example.com
+  - host: weather2025.fr
     http:
       paths:
       - path: /
