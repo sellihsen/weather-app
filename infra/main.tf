@@ -46,32 +46,35 @@ resource "azurerm_kubernetes_cluster" "aks" {
   depends_on = [azurerm_container_registry.acr]
 }
 
-resource "azapi_policy_definition" "limit_node_count" {
-  name         = "limit-node-count"
-  policy_type  = "Custom"
-  mode         = "All"
-  display_name = "Limit node count to 5 in AKS"
-  description  = "This policy restricts the node count to maximum 5 for AKS clusters"
-
-  policy_rule = <<POLICY
-  {
-    "if": {
-      "allOf": [
-        {
-          "field": "type",
-          "equals": "Microsoft.ContainerService/ManagedClusters"
-        },
-        {
-          "field": "Microsoft.ContainerService/ManagedClusters/agentPoolProfiles[*].count",
-          "greaterThan": 5
+resource "azapi_resource" "limit_node_count_policy_definition" {
+  type = "Microsoft.Authorization/policyDefinitions@2021-06-01"
+  name = "limit-node-count"
+  parent_id = data.azurerm_subscription.primary.id
+  body = jsonencode({
+    properties = {
+      displayName = "Limit node count to 5 in AKS"
+      policyType  = "Custom"
+      mode        = "All"
+      description = "This policy restricts the node count to maximum 5 for AKS clusters"
+      policyRule  = {
+        if = {
+          allOf = [
+            {
+              field = "type"
+              equals = "Microsoft.ContainerService/ManagedClusters"
+            },
+            {
+              field = "Microsoft.ContainerService/ManagedClusters/agentPoolProfiles[*].count"
+              greaterThan = 5
+            }
+          ]
         }
-      ]
-    },
-    "then": {
-      "effect": "deny"
+        then = {
+          effect = "deny"
+        }
+      }
     }
-  }
-  POLICY
+  })
 }
 
 resource "azapi_resource" "limit_node_count" {
