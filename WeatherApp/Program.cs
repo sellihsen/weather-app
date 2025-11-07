@@ -7,7 +7,6 @@ using OpenTelemetry.Resources;
 using Azure.Monitor.OpenTelemetry.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-static int weatherStationCount = 0;
 
 // Custom metrics for the application
 var weatherMeter = new Meter("WeatherApi", "1.0.0");
@@ -131,5 +130,8 @@ string SendWeatherStations(ILogger<Program> logger)
 
 app.Run();
 
-public partial class Program { };
+public partial class Program
+{
+    public static int weatherStationCount = 0;
+};
 
