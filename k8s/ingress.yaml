@@ -4,9 +4,9 @@ metadata:
   name: weather-app-ingress
   namespace: ns-weather-production
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  ingressClassName: nginx   # Add this line for ingress class
   tls:
   - hosts:
     - weather2025.fr
@@ -15,6 +15,7 @@ spec:
   - host: weather2025.fr
     http:
       paths:
+      
       - path: /
         pathType: Prefix
         backend:
@@ -22,4 +23,3 @@ spec:
             name: weather-app-service
             port:
               number: 80
-
