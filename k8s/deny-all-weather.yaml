@@ -1,0 +1,10 @@
+apiVersion: projectcalico.org/v3
+kind: NetworkPolicy
+metadata:
+  name: deny-all-ingress-weather-app
+  namespace: ns-weather-production
+spec:
+  selector: app == "weather-app"
+  types:
+  - Ingress
+  ingress: [] # empty ingress list denies all incoming traffic
