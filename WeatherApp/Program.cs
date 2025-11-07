@@ -125,7 +125,8 @@ string SendWeatherStations(ILogger<Program> logger)
     logger.LogInformation("Sending Weather Stations");
     countWeatherStations.Add(1);
     activity?.SetTag("WeatherStations", "Hello World!");
-    return $"Weather Stations count: {weatherStationCount}";
+    // return $"Weather Stations count: {weatherStationCount}";
+    return $"Hello World!";
 }
 
 app.Run();
